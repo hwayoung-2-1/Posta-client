@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Posta",
@@ -25,11 +24,8 @@ export default function RootLayout({
       <body className="antialiased">
         <QueryProvider>
           <Sidebar />
-          <div className="ml-20">
-            <Header />
-            <main className="mt-16 h-[calc(100vh-64px)] overflow-y-auto">
-              {children}
-            </main>
+          <div className="ml-20 h-screen overflow-y-auto">
+            {children}
           </div>
         </QueryProvider>
       </body>
