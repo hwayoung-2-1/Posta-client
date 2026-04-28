@@ -45,7 +45,7 @@ export default function ChatPanel() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed right-0 top-8 z-20 flex size-9 items-center justify-center rounded-l-[6px]"
+        className="fixed right-0 top-8 z-20 flex size-9 cursor-pointer items-center justify-center rounded-l-[6px]"
         style={{ background: "var(--color-primary)" }}
       >
         <Image
@@ -66,7 +66,7 @@ export default function ChatPanel() {
     >
       <button
         onClick={() => setIsOpen(false)}
-        className="absolute left-[31px] top-8 flex size-9 items-center justify-center rounded-[6px]"
+        className="absolute left-[31px] top-8 flex size-9 cursor-pointer items-center justify-center rounded-[6px]"
         style={{ background: "var(--color-primary)" }}
       >
         <Image src="/chevrons-right.svg" alt="패널 닫기" width={12} height={11} />
