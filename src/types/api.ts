@@ -1,13 +1,5 @@
-export interface ApiResponse<T> {
-  data: T
-  message: string
-  success: boolean
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  size: number
-  hasNext: boolean
+// 공통 페이지네이션 파라미터
+export interface PageParams {
+  page?: number
+  size?: number
 }

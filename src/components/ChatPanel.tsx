@@ -1,115 +1,154 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useChatStore } from '@/store/chatStore'
+import { getSuggestedQuestions } from '@/lib/api/portfolioApi'
 
-const dummyMessages = [
-  { role: "user", text: "임마 뭐 할줄아노" },
-  {
-    role: "ai",
-    text: "주요 직무는 UX/UI 디자이너로, Figma가 주요 기술입니다.\n추가로 Adobe Illustrator, Photoshop의 그래픽 디자인 기술도 보유하고 있습니다.\n나열된 프로젝트 A, B, C에 UX/UI 디자이너로 참여했습니다.",
-  },
-  { role: "user", text: "프론트엔드 안되노?" },
-  { role: "ai", text: "Front-End는 주요 직군이 아니지만, 퍼블리싱까지는 가능합니다." },
-  { role: "user", text: "자격증이나 수상경력은 없노?" },
-  {
-    role: "ai",
-    text: "자격증으로는 선생님몰래잠자기기능사 자격증을 취득했습니다.\n(자격증번호: 1Q2W3E4R)\n\n수상 경력은 기원전 200년, 동굴벽화협회에서 개최한 벽화예술대회에서 대상을 수상했습니다.",
-  },
-  { role: "user", text: "프로젝트 뭐 해봄?" },
-  {
-    role: "ai",
-    text: "참여 프로젝트는 다음과 같습니다:\n1. 내계정의문단속\n2. 마이서치\n3. 북한사이버부대 X 마루",
-  },
-];
+interface ChatPanelProps {
+  portfolioId: string
+}
 
-export default function ChatPanel() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState(dummyMessages);
-  const bottomRef = useRef<HTMLDivElement>(null);
+export default function ChatPanel({ portfolioId }: ChatPanelProps) {
+  const [isOpen, setIsOpen] = useState(true)
+  const [input, setInput] = useState('')
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  const { messages, isLoading, initSession, sendMessage, clearSession } = useChatStore()
+
+  const { data: suggestedData } = useQuery({
+    queryKey: ['suggested-questions', portfolioId],
+    queryFn: () => getSuggestedQuestions(portfolioId),
+    staleTime: Infinity,
+  })
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    initSession(portfolioId)
+    return () => clearSession()
+  }, [portfolioId])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const text = input.trim();
-    if (!text) return;
-    setMessages((prev) => [...prev, { role: "user", text }]);
-    setInput("");
-  };
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text || isLoading) return
+    setInput('')
+    await sendMessage(text)
+  }
+
+  const handleSuggestedClick = async (question: string) => {
+    if (isLoading) return
+    await sendMessage(question)
+  }
+
+  const showSuggestions = messages.length === 0 && !isLoading && (suggestedData?.questions?.length ?? 0) > 0
 
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed right-0 top-8 z-20 flex size-9 cursor-pointer items-center justify-center rounded-l-[6px]"
-        style={{ background: "var(--color-primary)" }}
+        className='fixed right-0 top-8 z-20 flex size-9 cursor-pointer items-center justify-center rounded-l-[6px]'
+        style={{ background: 'var(--color-primary)' }}
       >
-        <Image
-          src="/chevrons-right.svg"
-          alt="패널 열기"
-          width={12}
-          height={11}
-          className="rotate-180"
-        />
+        <Image src='/chevrons-right.svg' alt='패널 열기' width={12} height={11} className='rotate-180' />
       </button>
-    );
+    )
   }
 
   return (
     <div
-      className="fixed right-0 top-0 z-20 flex h-screen w-[496px] flex-col border-l"
-      style={{ background: "#2a2a29", borderColor: "var(--color-border)" }}
+      className='fixed right-0 top-0 z-20 flex h-screen w-[496px] flex-col border-l'
+      style={{ background: '#2a2a29', borderColor: 'var(--color-border)' }}
     >
       <button
         onClick={() => setIsOpen(false)}
-        className="absolute left-[31px] top-8 flex size-9 cursor-pointer items-center justify-center rounded-[6px]"
-        style={{ background: "var(--color-primary)" }}
+        className='absolute left-[31px] top-8 flex size-9 cursor-pointer items-center justify-center rounded-[6px]'
+        style={{ background: 'var(--color-primary)' }}
       >
-        <Image src="/chevrons-right.svg" alt="패널 닫기" width={12} height={11} />
+        <Image src='/chevrons-right.svg' alt='패널 닫기' width={12} height={11} />
       </button>
 
-      <div className="flex flex-1 flex-col overflow-y-auto overscroll-contain pt-20">
-        <div className="flex-1" />
-        <div className="flex flex-col gap-4 p-6 pb-0">
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              {msg.role === "user" ? (
-                <div
-                  className="max-w-[448px] rounded-2xl px-4 py-4 text-white"
-                  style={{ background: "#181817" }}
+      <div className='flex flex-1 flex-col overflow-y-auto overscroll-contain pt-20'>
+        <div className='flex-1' />
+        <div className='flex flex-col gap-4 p-6 pb-0'>
+
+          {/* 추천 질문 — 대화 전에만 표시 */}
+          {showSuggestions && (
+            <div className='flex flex-col gap-2'>
+              <p className='px-1 text-xs text-white/30'>추천 질문</p>
+              {suggestedData!.questions.map((q) => (
+                <button
+                  key={q.questionId}
+                  onClick={() => handleSuggestedClick(q.question)}
+                  className='rounded-xl border px-4 py-3 text-left text-sm text-white/70 transition-colors hover:border-white/30 hover:text-white'
+                  style={{ borderColor: 'var(--color-border)', background: '#1e1e1d' }}
                 >
-                  <p className="text-base leading-6">{msg.text}</p>
+                  {q.question}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {messages.length === 0 && !isLoading && !showSuggestions && (
+            <p className='px-4 text-sm text-white/30'>질문을 입력해 포트폴리오에 대해 물어보세요.</p>
+          )}
+
+          {messages.map((msg) => (
+            <div key={msg.messageId} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {msg.role === 'user' ? (
+                <div
+                  className='max-w-[448px] rounded-2xl px-4 py-4 text-white'
+                  style={{ background: '#181817' }}
+                >
+                  <p className='text-base leading-6'>{msg.content}</p>
                 </div>
               ) : (
-                <p className="max-w-[448px] px-4 py-4 text-base leading-6 text-white whitespace-pre-wrap">
-                  {msg.text}
-                </p>
+                <div className='max-w-[448px] px-4 py-4'>
+                  <p className='text-base leading-6 text-white whitespace-pre-wrap'>{msg.content}</p>
+                  {msg.answerable === false && (
+                    <p className='mt-1 text-xs text-white/40'>포트폴리오에서 관련 정보를 찾을 수 없습니다.</p>
+                  )}
+                </div>
               )}
             </div>
           ))}
+
+          {isLoading && (
+            <div className='flex justify-start px-4 py-4'>
+              <p className='text-sm text-white/40'>답변 생성 중...</p>
+            </div>
+          )}
+
           <div ref={bottomRef} />
         </div>
       </div>
 
-
-      <form onSubmit={handleSubmit} className="p-6 pt-4">
+      <form onSubmit={handleSubmit} className='p-6 pt-4'>
         <div
-          className="flex h-12 items-center rounded-2xl px-5"
-          style={{ background: "#464645" }}
+          className='flex h-12 items-center rounded-2xl px-5'
+          style={{ background: '#464645' }}
         >
           <input
-            type="text"
+            type='text'
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="무엇이든 물어보세요..."
-            className="flex-1 bg-transparent text-base leading-6 text-white outline-none placeholder:text-[#a8a8a6]"
+            placeholder='무엇이든 물어보세요...'
+            disabled={isLoading}
+            className='flex-1 bg-transparent text-base leading-6 text-white outline-none placeholder:text-[#a8a8a6] disabled:opacity-50'
           />
+          <button
+            type='submit'
+            disabled={isLoading || !input.trim()}
+            className='ml-2 disabled:opacity-30'
+          >
+            <Image src='/search.svg' alt='전송' width={16} height={16} className='opacity-60' />
+          </button>
         </div>
       </form>
     </div>
-  );
+  )
 }
