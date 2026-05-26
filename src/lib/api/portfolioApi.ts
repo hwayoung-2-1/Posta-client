@@ -34,7 +34,7 @@ export async function uploadPdfPortfolio(
   form.append('file', file)
   const { data } = await apiClient.post<UploadPortfolioPdfResponse>('/api/v1/portfolios/pdf', form, {
     params,
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // Content-Type은 axios가 FormData 감지 시 boundary 포함해 자동 설정
   })
   return data
 }

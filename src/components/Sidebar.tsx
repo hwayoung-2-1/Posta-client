@@ -1,96 +1,58 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useQuery } from '@tanstack/react-query'
-import { getMe } from '@/lib/api/userApi'
-import { useAuthStore } from '@/store/authStore'
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: '/portfolio', icon: '/film.svg', alt: '포트폴리오', size: 17 },
-  { href: '/bookmark', icon: '/bookmark.svg', alt: '북마크', size: 14 },
-  { href: '/upload', icon: '/plus.svg', alt: '업로드', size: 14 },
-]
+  { href: "/", icon: "/house.svg", alt: "홈", size: 17 },
+  { href: "/portfolio", icon: "/film.svg", alt: "포트폴리오", size: 17 },
+  { href: "/bookmark", icon: "/bookmark.svg", alt: "북마크", size: 14 },
+  { href: "/upload", icon: "/plus.svg", alt: "업로드", size: 14 },
+];
 
 export default function Sidebar() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const logout = useAuthStore((s) => s.logout)
-
-  const { data: user } = useQuery({
-    queryKey: ['me'],
-    queryFn: getMe,
-    retry: false,
-  })
-
-  const handleLogout = () => {
-    logout()
-    router.push('/login')
-  }
+  const pathname = usePathname();
 
   return (
-    <aside
-      className='fixed left-0 top-0 z-20 flex h-screen w-20 flex-col items-center justify-between border-r py-[19px]'
-      style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
-    >
-      <Link href='/portfolio' className='flex size-10 items-center justify-center'>
-        <Image src='/logo.svg' alt='Posta' width={26} height={25} />
+    <aside className="fixed left-0 top-0 z-20 flex h-screen w-20 flex-col items-center justify-between border-r py-[19px]"
+      style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}>
+      <Link href="/" className="flex size-10 items-center justify-center">
+        <Image src="/logo.svg" alt="Posta" width={26} height={25} />
       </Link>
 
-      <nav className='flex flex-col gap-4'>
+      <nav className="flex flex-col gap-4">
         {navItems.map(({ href, icon, alt, size }) => {
-          const isActive = pathname.startsWith(href)
+          const isActive = pathname === href;
           return (
             <Link
               key={href}
               href={href}
-              className='flex size-10 items-center justify-center rounded-[6px] transition-colors'
-              style={{ background: isActive ? 'var(--color-primary)' : 'transparent' }}
+              className="flex size-10 items-center justify-center rounded-[6px] transition-colors"
+              style={{
+                background: isActive ? "var(--color-primary)" : "transparent",
+              }}
             >
               <Image
                 src={icon}
                 alt={alt}
                 width={size}
                 height={size}
-                style={{ filter: isActive ? 'brightness(0)' : 'brightness(0) invert(1)' }}
+                style={{ filter: isActive ? "brightness(0)" : "brightness(0) invert(1)" }}
               />
             </Link>
-          )
+          );
         })}
       </nav>
 
-      <div className='flex flex-col gap-4 items-center'>
-        <button
-          onClick={handleLogout}
-          className='size-10 overflow-hidden rounded-full focus:outline-none'
-          title={user?.name ?? '프로필'}
-        >
-          {user?.profileImageUrl ? (
-            <Image
-              src={user.profileImageUrl}
-              alt='프로필'
-              width={40}
-              height={40}
-              className='object-cover size-full rounded-full'
-            />
-          ) : (
-            <div
-              className='flex size-full items-center justify-center rounded-full text-xs font-medium text-black'
-              style={{ background: 'var(--color-primary)' }}
-            >
-              {user?.name?.[0]?.toUpperCase() ?? '?'}
-            </div>
-          )}
-        </button>
-
-        <Link
-          href='/settings'
-          className='flex size-10 items-center justify-center rounded-[6px] transition-colors hover:bg-white/10'
-        >
-          <Image src='/settings.svg' alt='설정' width={18} height={19} />
+      <div className="flex flex-col gap-4 items-center">
+        <div className="size-10 overflow-hidden rounded-full">
+          <Image src="/dummyProfile.png" alt="프로필" width={40} height={40} className="object-cover size-full" />
+        </div>
+        <Link href="/settings" className="flex size-10 items-center justify-center rounded-[6px] transition-colors hover:bg-white/10">
+          <Image src="/settings.svg" alt="설정" width={18} height={19} />
         </Link>
       </div>
     </aside>
-  )
+  );
 }

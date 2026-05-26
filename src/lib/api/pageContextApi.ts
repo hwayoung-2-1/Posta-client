@@ -8,7 +8,7 @@ import type {
 } from '@/types/pageContext'
 
 export async function getPageContexts(portfolioId: string): Promise<PageContextsResponse> {
-  const { data } = await apiClient.get<PageContextsResponse>(`/api/v1/portfolios/${portfolioId}/pages/contexts`)
+  const { data } = await apiClient.get<PageContextsResponse>(`/api/v1/portfolios/${portfolioId}/pages`)
   return data
 }
 
