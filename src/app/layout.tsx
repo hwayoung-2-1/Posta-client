@@ -24,7 +24,7 @@ export default function RootLayout({
       <body className="antialiased">
         <QueryProvider>
           <Sidebar />
-          <div className="ml-20 h-screen overflow-y-auto">
+          <div className="ml-16 h-screen overflow-y-auto sm:ml-20">
             {children}
           </div>
         </QueryProvider>

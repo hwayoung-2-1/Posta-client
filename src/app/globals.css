@@ -1,15 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #242423;
-  --color-surface: #333332;
-  --color-border: #5E5E5D;
-  --color-fg: #F4F4F3;
-  --color-primary: #FFFFFF;
+  --color-bg: #242423;        /* neatural 900 / background */
+  --color-surface: #333332;   /* neatural 700 */
+  --color-surface-2: #2A2A29; /* neatural 800 (modal card) */
+  --color-ink: #181817;       /* neatural 950 / primary foreground */
+  --color-border: #5E5E5D;    /* unofficial/border 5 */
+  --color-border-strong: #A8A8A6; /* unofficial/border 3 / secondary */
+  --color-fg: #F4F4F3;        /* general/foreground */
+  --color-muted: #C8C8C6;     /* general/muted (placeholder) */
+  --color-primary: #FFFFFF;   /* general/primary */
+  --color-accent: #5A8DFF;    /* blue/blue 500 (active selection) */
+  --color-track: #818180;     /* neatural 400 (progress track) */
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: 'Pretendard Variable', sans-serif;
+}
+
+/* 접근성: 모션 최소화 선호 사용자 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
