@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import Header from "@/components/Header";
+import { useState } from "react";
+import SearchBar from "@/components/search/SearchBar";
+import { EMPTY_FILTERS } from "@/components/search/filterOptions";
 
 const portfolioRows = [
   [
@@ -18,15 +22,18 @@ const portfolioRows = [
   ],
 ];
 
+// Figma 154-522 (기본) / 219-2240 (필터 검색) · 홈 피드
 export default function PortfolioPage() {
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+
   return (
     <>
-      <div className="sticky top-0 z-10">
-        <Header />
+      <div className="sticky top-0 z-20">
+        <SearchBar filters={filters} onChange={setFilters} showTabs />
       </div>
       <div className="flex flex-col">
         {portfolioRows.map((row, rowIdx) => (
-          <div key={rowIdx} className="flex h-[460px]">
+          <div key={rowIdx} className="flex h-[180px] sm:h-[300px] lg:h-[460px]">
             {row.map(({ src, flex, id }) => (
               <Link
                 key={id}
