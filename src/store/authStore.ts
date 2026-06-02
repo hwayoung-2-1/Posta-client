@@ -3,6 +3,16 @@
 import { create } from 'zustand'
 import type { UserMeResponse } from '@/types/user'
 
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7일
+
+function setAuthCookie(token: string) {
+  document.cookie = `accessToken=${token}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`
+}
+
+function clearAuthCookie() {
+  document.cookie = 'accessToken=; path=/; max-age=0'
+}
+
 interface AuthStore {
   token: string | null
   user: UserMeResponse | null
@@ -12,24 +22,34 @@ interface AuthStore {
   isLoggedIn: () => boolean
 }
 
-export const useAuthStore = create<AuthStore>((set, get) => ({
-  token: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
-  user: null,
+export const useAuthStore = create<AuthStore>((set, get) => {
+  // localStorage → cookie 동기화 (새로고침 시 미들웨어가 쿠키를 읽을 수 있게)
+  if (typeof window !== 'undefined') {
+    const storedToken = localStorage.getItem('accessToken')
+    if (storedToken) setAuthCookie(storedToken)
+  }
 
-  setToken: (token) => {
-    localStorage.setItem('accessToken', token)
-    set({ token })
-  },
+  return {
+    token: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
+    user: null,
 
-  setUser: (user) => set({ user }),
+    setToken: (token) => {
+      localStorage.setItem('accessToken', token)
+      setAuthCookie(token)
+      set({ token })
+    },
 
-  logout: () => {
-    localStorage.removeItem('accessToken')
-    set({ token: null, user: null })
-  },
+    setUser: (user) => set({ user }),
 
-  isLoggedIn: () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : get().token
-    return !!token
-  },
-}))
+    logout: () => {
+      localStorage.removeItem('accessToken')
+      clearAuthCookie()
+      set({ token: null, user: null })
+    },
+
+    isLoggedIn: () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : get().token
+      return !!token
+    },
+  }
+})
