@@ -61,7 +61,7 @@ export default function ChatPanel() {
 
   return (
     <div
-      className="fixed right-0 top-0 z-20 flex h-screen w-[496px] flex-col border-l"
+      className="fixed right-0 top-0 z-20 flex h-screen w-full flex-col border-l sm:w-[496px]"
       style={{ background: "#2a2a29", borderColor: "var(--color-border)" }}
     >
       <button
