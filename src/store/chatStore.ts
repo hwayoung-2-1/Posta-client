@@ -8,6 +8,7 @@ const sessionKey = (portfolioId: string) => `posta_chat_session_${portfolioId}`
 
 interface ChatStore {
   sessionId: string | null
+  activePortfolioId: string | null
   messages: ChatMessageItemResponse[]
   isLoading: boolean
   initSession: (portfolioId: string) => Promise<void>
@@ -17,27 +18,30 @@ interface ChatStore {
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   sessionId: null,
+  activePortfolioId: null,
   messages: [],
   isLoading: false,
 
   initSession: async (portfolioId: string) => {
-    if (get().sessionId) return
+    const current = get()
+    if (current.activePortfolioId === portfolioId && current.sessionId) return
+
+    // 포트폴리오가 다르면 메모리 초기화 후 재시작
+    set({ sessionId: null, activePortfolioId: portfolioId, messages: [], isLoading: false })
 
     const stored = localStorage.getItem(sessionKey(portfolioId))
 
     if (stored) {
-      // 기존 세션 복원 — 히스토리 로드
       set({ sessionId: stored })
       try {
         const res = await getChatMessages(stored)
         set({ messages: res.messages })
       } catch {
-        // 세션 만료 등으로 히스토리 로드 실패 시 새 세션 생성
         localStorage.removeItem(sessionKey(portfolioId))
+        set({ sessionId: null })
         await get().initSession(portfolioId)
       }
     } else {
-      // 새 세션 생성
       try {
         const res = await createChatSession(portfolioId)
         localStorage.setItem(sessionKey(portfolioId), res.chatSessionId)
@@ -88,6 +92,5 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  // 페이지 이탈 시 메모리만 초기화 (localStorage는 유지 → 재방문 시 복원)
-  clearSession: () => set({ sessionId: null, messages: [], isLoading: false }),
+  clearSession: () => set({ sessionId: null, activePortfolioId: null, messages: [], isLoading: false }),
 }))

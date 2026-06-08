@@ -20,14 +20,7 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken')
-      }
-    }
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 export default apiClient

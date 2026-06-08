@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
 const navItems = [
   { href: "/portfolio", icon: "/house.svg", alt: "홈", size: 17 },
@@ -13,6 +14,13 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const logout = useAuthStore((s) => s.logout);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-30 flex h-screen w-16 flex-col items-center justify-between border-r py-[19px] sm:w-20"
@@ -52,6 +60,13 @@ export default function Sidebar() {
         <Link href="/settings" className="flex size-10 items-center justify-center rounded-[6px] transition-colors hover:bg-white/10">
           <Image src="/settings.svg" alt="설정" width={18} height={19} />
         </Link>
+        <button
+          onClick={handleLogout}
+          className="flex size-10 items-center justify-center rounded-[6px] transition-colors hover:bg-white/10"
+          title="로그아웃"
+        >
+          <Image src="/chevrons-right.svg" alt="로그아웃" width={18} height={18} style={{ filter: "brightness(0) invert(1)" }} />
+        </button>
       </div>
     </aside>
   );

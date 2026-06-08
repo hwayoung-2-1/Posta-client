@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import Button from "./Button";
 import UploadCard from "./UploadCard";
 
@@ -10,7 +11,7 @@ interface FileStepProps {
   state: FileState;
   fileName: string;
   progress: number; // 0 ~ 100
-  onPickFile: () => void;
+  onFileSelect: (file: File) => void;
   onRemoveFile: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -21,11 +22,17 @@ export default function FileStep({
   state,
   fileName,
   progress,
-  onPickFile,
+  onFileSelect,
   onRemoveFile,
   onPrev,
   onNext,
 }: FileStepProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) onFileSelect(file)
+  }
   const isUploading = state === "uploading";
   const isUploaded = state === "uploaded";
 
@@ -57,7 +64,14 @@ export default function FileStep({
             </>
           ) : (
             <>
-              <Button withUploadIcon onClick={onPickFile}>
+              <input
+                ref={inputRef}
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                onChange={handleInputChange}
+              />
+              <Button withUploadIcon onClick={() => inputRef.current?.click()}>
                 파일 업로드
               </Button>
               <div className="flex w-[265px] flex-col items-center gap-2">

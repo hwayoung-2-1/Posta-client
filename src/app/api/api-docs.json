@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://postaserver.haeyul.cloud:8080",
+      "url": "http://10.129.57.64:8081",
       "description": "Generated server url"
     }
   ],
@@ -19,7 +19,7 @@
   "paths": {
     "/api/v1/portfolios/{portfolioId}/pages/{pageNumber}/context": {
       "put": {
-        "tags": ["portfolio-page-context-controller"],
+        "tags": ["챗봇 기능"],
         "operationId": "upsertPageContext",
         "parameters": [
           {
@@ -65,7 +65,7 @@
         }
       },
       "delete": {
-        "tags": ["portfolio-page-context-controller"],
+        "tags": ["챗봇 기능"],
         "operationId": "deletePageContext",
         "parameters": [
           {
@@ -96,7 +96,7 @@
     },
     "/api/v1/portfolios/{portfolioId}/pages/contexts": {
       "put": {
-        "tags": ["portfolio-page-context-controller"],
+        "tags": ["챗봇 기능"],
         "operationId": "upsertPageContexts",
         "parameters": [
           {
@@ -418,7 +418,9 @@
     },
     "/api/v1/portfolios/{portfolioId}/chat-sessions": {
       "post": {
-        "tags": ["portfolio-chatbot-controller"],
+        "tags": ["챗봇 기능"],
+        "summary": "ChatBot 생성 API",
+        "description": "viwer가 포토폴리오의 portfolier를 볼때 사용하는 AI 생성 API",
         "operationId": "createSession",
         "parameters": [
           {
@@ -507,7 +509,8 @@
     },
     "/api/v1/chat-sessions/{chatSessionId}/messages": {
       "get": {
-        "tags": ["portfolio-chatbot-controller"],
+        "tags": ["챗봇 기능"],
+        "summary": "AI와의 대화 세션 조회",
         "operationId": "messages",
         "parameters": [
           {
@@ -534,7 +537,8 @@
         }
       },
       "post": {
-        "tags": ["portfolio-chatbot-controller"],
+        "tags": ["챗봇 기능"],
+        "summary": "메시지 세션 생성 API",
         "operationId": "sendMessage",
         "parameters": [
           {
@@ -1215,7 +1219,7 @@
     },
     "/api/v1/portfolios/{portfolioId}/pages": {
       "get": {
-        "tags": ["portfolio-page-context-controller"],
+        "tags": ["챗봇 기능"],
         "operationId": "getPageContexts",
         "parameters": [
           {

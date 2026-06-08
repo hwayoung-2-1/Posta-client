@@ -3,6 +3,7 @@ import type {
   GetPortfoliosParams,
   PortfolioListResponse,
   PortfolioDetailResponse,
+  UploadPortfolioResponse,
   UploadPortfolioPdfResponse,
   UpdatePortfolioRequest,
   UpdatePortfolioResponse,
@@ -23,6 +24,16 @@ export async function getPortfolios(params: GetPortfoliosParams = {}): Promise<P
 
 export async function getPortfolio(portfolioId: string): Promise<PortfolioDetailResponse> {
   const { data } = await apiClient.get<PortfolioDetailResponse>(`/api/v1/portfolios/${portfolioId}`)
+  return data
+}
+
+export async function uploadPortfolio(
+  file: File,
+  params: { title: string; description?: string; visibility?: string; roleIds?: string[]; skillIds?: string[] }
+): Promise<UploadPortfolioResponse> {
+  const form = new FormData()
+  form.append('file', file)
+  const { data } = await apiClient.post<UploadPortfolioResponse>('/api/v1/portfolios', form, { params })
   return data
 }
 

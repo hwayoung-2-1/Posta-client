@@ -1,74 +1,85 @@
+'use client'
+
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import ChatPanel from '@/components/ChatPanel'
-import { NotionViewer } from '@/components/portfolio/NotionViewer'
 import { PdfViewer } from '@/components/portfolio/PdfViewer'
+import { getPortfolio, getPageDetail, savePortfolio, unsavePortfolio } from '@/lib/api/portfolioApi'
+import type { PortfolioDetailResponse, PdfPageInfo } from '@/types/portfolio'
 
-// API 연결 예시 (UI 팀원이 작업 시 아래 import 활용)
-// import { getPortfolio, getPageDetail } from '@/lib/api/portfolioApi'
+export default function PortfolioDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const [portfolio, setPortfolio] = useState<PortfolioDetailResponse | null>(null)
+  const [pages, setPages] = useState<PdfPageInfo[]>([])
+  const [isSaved, setIsSaved] = useState(false)
 
-interface Props {
-  params: Promise<{ id: string }>
-}
+  useEffect(() => {
+    getPortfolio(id)
+      .then(async (p) => {
+        setPortfolio(p)
+        const details = await Promise.all(
+          Array.from({ length: p.pageCount }, (_, i) => getPageDetail(id, i + 1))
+        )
+        setPages(
+          details
+            .filter((d) => d.pageImageUrl)
+            .map((d) => ({
+              pageNumber: d.pageNumber,
+              imageUrl: d.pageImageUrl!,
+              size: { width: 210, height: 297, aspectRatio: 210 / 297 },
+            }))
+        )
+      })
+      .catch(() => {})
+  }, [id])
 
-export default async function PortfolioDetailPage({ params }: Props) {
-  const { id } = await params
-
-  // TODO: 실제 API 연결 필요
-  // const portfolio = await getPortfolio(id)
-  const portfolio = {
-    type: 'pdf' as 'pdf' | 'notion',
-    notionUrl: undefined as string | undefined,
-    pdfPages: [] as { pageNumber: number; imageUrl: string; size: { width: number; height: number; aspectRatio: number } }[],
-    authorProfileUrl: '/dummyProfile.png',
-    authorName: '',
+  const toggleSave = async () => {
+    try {
+      if (isSaved) {
+        await unsavePortfolio(id)
+      } else {
+        await savePortfolio(id)
+      }
+      setIsSaved((v) => !v)
+    } catch {
+      // silent
+    }
   }
 
   return (
     <>
-      <div className='mr-[496px] flex flex-col items-center gap-6 px-8 py-8'>
-        {portfolio.type === 'notion' && portfolio.notionUrl ? (
-          <NotionViewer url={portfolio.notionUrl} />
-        ) : (
-          <PdfViewer pages={portfolio.pdfPages} />
-        )}
+      <div className="mr-[496px] flex flex-col items-center gap-6 px-8 py-8">
+        <PdfViewer pages={pages} />
 
-        <div className='w-full mt-4 flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <div className='size-10 overflow-hidden rounded-full shrink-0'>
-              <Image
-                src={portfolio.authorProfileUrl}
-                alt='프로필'
-                width={40}
-                height={40}
-                className='object-cover size-full'
-              />
+        {portfolio && (
+          <div className="w-full mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-10 overflow-hidden rounded-full shrink-0">
+                <Image src="/dummyProfile.png" alt="프로필" width={40} height={40} className="object-cover size-full" />
+              </div>
+              <span className="text-base leading-6 text-white">{portfolio.title}</span>
             </div>
-            <span className='text-base leading-6 text-white'>{portfolio.authorName}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleSave}
+                className="flex size-10 items-center justify-center rounded-[6px]"
+                style={{ background: 'var(--color-primary)' }}
+              >
+                <Image
+                  src="/bookmark.svg"
+                  alt="북마크"
+                  width={14}
+                  height={17}
+                  style={isSaved ? { filter: 'brightness(0) invert(1)' } : { filter: 'brightness(0)' }}
+                />
+              </button>
+            </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <button
-              className='flex size-10 items-center justify-center rounded-[6px]'
-              style={{ background: 'var(--color-primary)' }}
-            >
-              <Image src='/heart.svg' alt='좋아요' width={19} height={17} />
-            </button>
-            <button
-              className='flex size-10 items-center justify-center rounded-[6px]'
-              style={{ background: 'var(--color-primary)' }}
-            >
-              <Image
-                src='/bookmark.svg'
-                alt='북마크'
-                width={14}
-                height={17}
-                style={{ filter: 'brightness(0)' }}
-              />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
-      <ChatPanel />
+      <ChatPanel portfolioId={id} />
     </>
   )
 }
