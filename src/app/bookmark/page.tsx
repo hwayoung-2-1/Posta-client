@@ -62,7 +62,6 @@ export default function BookmarkPage() {
                 key={p.portfolioId}
                 portfolioId={p.portfolioId}
                 ownerName={p.ownerName}
-                thumbnailUrl={p.thumbnailUrl}
               />
             ))}
           </div>

@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { getMe } from "@/lib/api/userApi";
 
 const navItems = [
   { href: "/portfolio", icon: "/house.svg", alt: "홈", size: 17 },
@@ -16,6 +18,11 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    getMe().then((me) => setProfileImageUrl(me.profileImageUrl)).catch(() => {})
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -55,7 +62,14 @@ export default function Sidebar() {
 
       <div className="flex flex-col gap-4 items-center">
         <Link href="/profile" className="size-10 overflow-hidden rounded-full">
-          <Image src="/dummyProfile.png" alt="프로필" width={40} height={40} className="object-cover size-full" />
+          <Image
+            src={profileImageUrl ?? '/dummyProfile.png'}
+            alt="프로필"
+            width={40}
+            height={40}
+            unoptimized={!!profileImageUrl}
+            className="object-cover size-full"
+          />
         </Link>
         <Link href="/settings" className="flex size-10 items-center justify-center rounded-[6px] transition-colors hover:bg-white/10">
           <Image src="/settings.svg" alt="설정" width={18} height={19} />

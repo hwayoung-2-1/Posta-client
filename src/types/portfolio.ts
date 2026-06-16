@@ -149,6 +149,30 @@ export interface SavedPortfolioListResponse {
   totalElements: number
 }
 
+// 내 포트폴리오 목록
+export interface MyPortfolioListItemResponse {
+  portfolioId: string
+  title: string
+  description: string | null
+  visibility: PortfolioVisibility
+  status: PortfolioStatus
+  thumbnailUrl: string | null
+  pageCount: number
+  roles: string[]
+  skills: string[]
+  publishedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MyPortfolioListResponse {
+  content: MyPortfolioListItemResponse[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
 // 리인덱스
 export interface ReindexResponse {
   portfolioId: string

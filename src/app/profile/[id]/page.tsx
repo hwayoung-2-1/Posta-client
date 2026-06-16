@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import FloatingButtons from '@/components/profile/FloatingButtons'
@@ -8,8 +7,8 @@ import AskPanel from '@/components/profile/AskPanel'
 import FaqPanel from '@/components/profile/FaqPanel'
 import DeleteDialog from '@/components/profile/DeleteDialog'
 import WriteStep from '@/components/upload/WriteStep'
-import { getPortfolio, deletePortfolio, getPdfViewUrl } from '@/lib/api/portfolioApi'
-import type { PortfolioDetailResponse } from '@/types/portfolio'
+import { PdfViewer } from '@/components/portfolio/PdfViewer'
+import { deletePortfolio, getPortfolioPdfUrl } from '@/lib/api/portfolioApi'
 
 type Panel = 'ask' | 'faq' | null
 
@@ -19,12 +18,10 @@ export default function PortfolioDetailPage() {
   const [panel, setPanel] = useState<Panel>(null)
   const [editing, setEditing] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
-  const [portfolio, setPortfolio] = useState<PortfolioDetailResponse | null>(null)
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
 
   useEffect(() => {
-    getPortfolio(id).then(setPortfolio).catch(() => {})
-    getPdfViewUrl(id).then((r) => setPdfUrl(r.url)).catch(() => {})
+    getPortfolioPdfUrl(id).then(setPdfUrl).catch(() => {})
   }, [id])
 
   const handleConfirmDelete = async () => {
@@ -59,19 +56,8 @@ export default function PortfolioDetailPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="mx-auto w-full max-w-[1840px]">
-        {pdfUrl ? (
-          <iframe src={pdfUrl} className="h-[80vh] w-full border-0" title={portfolio?.title ?? '포트폴리오'} />
-        ) : (
-          <Image
-            src="/profile/portfolio-full.png"
-            alt="포트폴리오"
-            width={1840}
-            height={3680}
-            className="h-auto w-full"
-            priority
-          />
-        )}
+      <div className="mx-auto flex w-full max-w-[1840px] flex-col items-center gap-6 px-8 py-8 pb-32">
+        <PdfViewer pdfUrl={pdfUrl} />
       </div>
 
       <FloatingButtons

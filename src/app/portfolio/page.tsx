@@ -1,11 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useCallback } from 'react'
 import SearchBar from '@/components/search/SearchBar'
 import { EMPTY_FILTERS, type SearchFilters } from '@/components/search/filterOptions'
 import { getPortfolios } from '@/lib/api/portfolioApi'
+import { PdfThumbnail } from '@/components/portfolio/PdfThumbnail'
 import type { PortfolioListItemResponse } from '@/types/portfolio'
 
 const FLEX_CYCLE = [880, 960, 514, 715, 611, 960, 880]
@@ -54,7 +54,7 @@ export default function PortfolioPage() {
         <div className="flex flex-col">
           {rows.map((row, rowIdx) => (
             <div key={rowIdx} className="flex h-[180px] sm:h-[300px] lg:h-[460px]">
-              {row.map(({ portfolioId, thumbnailUrl, title }, colIdx) => {
+              {row.map(({ portfolioId, title }, colIdx) => {
                 const flex = FLEX_CYCLE[(rowIdx * 2 + colIdx) % FLEX_CYCLE.length]
                 return (
                   <Link
@@ -63,20 +63,11 @@ export default function PortfolioPage() {
                     className="relative overflow-hidden"
                     style={{ flex }}
                   >
-                    {thumbnailUrl ? (
-                      <Image
-                        src={thumbnailUrl}
-                        alt={title}
-                        fill
-                        unoptimized
-                        className="object-cover transition-transform duration-300 hover:scale-105"
-                        sizes="(max-width: 1920px) 50vw"
-                      />
-                    ) : (
-                      <div className="flex size-full items-center justify-center bg-white/5 text-sm text-white/40">
-                        썸네일이 없습니다.
-                      </div>
-                    )}
+                    <PdfThumbnail
+                      portfolioId={portfolioId}
+                      alt={title}
+                      className="size-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
                   </Link>
                 )
               })}

@@ -25,7 +25,6 @@ export default function ReelsPage() {
             key={p.portfolioId}
             portfolioId={p.portfolioId}
             ownerName={p.ownerName}
-            thumbnailUrl={p.thumbnailUrl}
             isSaved={p.saved}
             onFocus={() => setActivePid(p.portfolioId)}
           />

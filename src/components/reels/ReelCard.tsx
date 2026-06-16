@@ -4,17 +4,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { savePortfolio, unsavePortfolio } from '@/lib/api/portfolioApi'
+import { PdfThumbnail } from '@/components/portfolio/PdfThumbnail'
 
 interface ReelCardProps {
   portfolioId: string
   ownerName: string
-  thumbnailUrl?: string | null
   totalPages?: number
   isSaved?: boolean
   onFocus?: () => void
 }
 
-export default function ReelCard({ portfolioId, ownerName, thumbnailUrl, totalPages = 1, isSaved = false, onFocus }: ReelCardProps) {
+export default function ReelCard({ portfolioId, ownerName, totalPages = 1, isSaved = false, onFocus }: ReelCardProps) {
   const [page, setPage] = useState(1)
   const [saved, setSaved] = useState(isSaved)
 
@@ -42,20 +42,11 @@ export default function ReelCard({ portfolioId, ownerName, thumbnailUrl, totalPa
         className="group block w-full border border-[var(--color-border)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
       >
         <div className="relative aspect-[16/9] w-full overflow-hidden border border-white bg-white">
-          {thumbnailUrl ? (
-            <Image
-              src={thumbnailUrl}
-              alt={`${ownerName} 포트폴리오 ${page}페이지`}
-              fill
-              unoptimized
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              sizes="(max-width: 1280px) 100vw, 1280px"
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center text-sm text-white/40">
-              썸네일이 없습니다.
-            </div>
-          )}
+          <PdfThumbnail
+            portfolioId={portfolioId}
+            alt={`${ownerName} 포트폴리오`}
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          />
         </div>
       </Link>
 

@@ -4,23 +4,19 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import SavedCard from '@/components/bookmark/SavedCard'
 import { getMe } from '@/lib/api/userApi'
-import { getPortfolios, getSavedPortfolios } from '@/lib/api/portfolioApi'
+import { getSavedPortfolios, getMyPortfolios } from '@/lib/api/portfolioApi'
 import type { UserMeResponse } from '@/types/user'
-import type { PortfolioListItemResponse } from '@/types/portfolio'
+import type { MyPortfolioListItemResponse } from '@/types/portfolio'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<UserMeResponse | null>(null)
-  const [portfolios, setPortfolios] = useState<PortfolioListItemResponse[]>([])
+  const [portfolios, setPortfolios] = useState<MyPortfolioListItemResponse[]>([])
   const [savedCount, setSavedCount] = useState(0)
 
   useEffect(() => {
-    getMe()
-      .then((me) => {
-        setUser(me)
-        getPortfolios({ name: me.name }).then((res) => setPortfolios(res.content)).catch(() => {})
-      })
-      .catch(() => {})
+    getMe().then(setUser).catch(() => {})
     getSavedPortfolios().then((res) => setSavedCount(res.totalElements)).catch(() => {})
+    getMyPortfolios().then((res) => setPortfolios(res.content)).catch(() => {})
   }, [])
 
   if (!user) {
@@ -39,6 +35,7 @@ export default function ProfilePage() {
             alt={user.name}
             width={88}
             height={88}
+            unoptimized={!!user.profileImageUrl}
             className="size-full object-cover"
           />
         </div>
@@ -69,9 +66,9 @@ export default function ProfilePage() {
             <SavedCard
               key={pf.portfolioId}
               portfolioId={pf.portfolioId}
-              ownerName={pf.ownerName}
-              thumbnailUrl={pf.thumbnailUrl}
-              href={`/profile/${pf.portfolioId}`}
+              ownerName={user.name}
+              ownerProfileImageUrl={user.profileImageUrl}
+              href={`/portfolio/${pf.portfolioId}`}
             />
           ))}
         </div>

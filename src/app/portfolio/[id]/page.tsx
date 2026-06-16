@@ -5,33 +5,18 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ChatPanel from '@/components/ChatPanel'
 import { PdfViewer } from '@/components/portfolio/PdfViewer'
-import { getPortfolio, getPageDetail, savePortfolio, unsavePortfolio } from '@/lib/api/portfolioApi'
-import type { PortfolioDetailResponse, PdfPageInfo } from '@/types/portfolio'
+import { getPortfolio, getPortfolioPdfUrl, savePortfolio, unsavePortfolio } from '@/lib/api/portfolioApi'
+import type { PortfolioDetailResponse } from '@/types/portfolio'
 
 export default function PortfolioDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [portfolio, setPortfolio] = useState<PortfolioDetailResponse | null>(null)
-  const [pages, setPages] = useState<PdfPageInfo[]>([])
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
 
   useEffect(() => {
-    getPortfolio(id)
-      .then(async (p) => {
-        setPortfolio(p)
-        const details = await Promise.all(
-          Array.from({ length: p.pageCount }, (_, i) => getPageDetail(id, i + 1))
-        )
-        setPages(
-          details
-            .filter((d) => d.pageImageUrl)
-            .map((d) => ({
-              pageNumber: d.pageNumber,
-              imageUrl: d.pageImageUrl!,
-              size: { width: 210, height: 297, aspectRatio: 210 / 297 },
-            }))
-        )
-      })
-      .catch(() => {})
+    getPortfolio(id).then(setPortfolio).catch(() => {})
+    getPortfolioPdfUrl(id).then(setPdfUrl).catch(() => {})
   }, [id])
 
   const toggleSave = async () => {
@@ -49,31 +34,34 @@ export default function PortfolioDetailPage() {
 
   return (
     <>
-      <div className="mr-[496px] flex flex-col items-center gap-6 px-8 py-8">
-        <PdfViewer pages={pages} />
+      <div className="mr-[496px] flex flex-col items-center gap-6 px-8 py-8 pb-32">
+        <PdfViewer pdfUrl={pdfUrl} />
 
         {portfolio && (
-          <div className="w-full mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="size-10 overflow-hidden rounded-full shrink-0">
-                <Image src="/dummyProfile.png" alt="프로필" width={40} height={40} className="object-cover size-full" />
+          <div className="fixed bottom-0 left-16 sm:left-20 right-[496px] z-20" style={{ background: 'linear-gradient(to top, rgba(24,24,23,0.95) 0%, rgba(24,24,23,0.6) 50%, transparent 100%)' }}>
+            <div className="flex items-center justify-between px-8 py-4 pt-12">
+              <div className="flex items-center gap-3">
+                <div className="size-10 overflow-hidden rounded-full shrink-0 bg-white/20">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/dummyProfile.png" alt="프로필" className="size-full object-cover" />
+                </div>
+                <span className="text-base leading-6 text-white">{portfolio.title}</span>
               </div>
-              <span className="text-base leading-6 text-white">{portfolio.title}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleSave}
-                className="flex size-10 items-center justify-center rounded-[6px]"
-                style={{ background: 'var(--color-primary)' }}
-              >
-                <Image
-                  src="/bookmark.svg"
-                  alt="북마크"
-                  width={14}
-                  height={17}
-                  style={isSaved ? { filter: 'brightness(0) invert(1)' } : { filter: 'brightness(0)' }}
-                />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleSave}
+                  className="flex size-10 items-center justify-center rounded-[6px]"
+                  style={{ background: 'var(--color-primary)' }}
+                >
+                  <Image
+                    src="/bookmark.svg"
+                    alt="북마크"
+                    width={14}
+                    height={17}
+                    style={isSaved ? { filter: 'brightness(0) invert(1)' } : { filter: 'brightness(0)' }}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         )}

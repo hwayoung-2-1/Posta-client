@@ -4,17 +4,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { savePortfolio, unsavePortfolio } from '@/lib/api/portfolioApi'
+import { PdfThumbnail } from '@/components/portfolio/PdfThumbnail'
 
 interface SavedCardProps {
   portfolioId: string
   ownerName: string
-  thumbnailUrl?: string | null
+  ownerProfileImageUrl?: string | null
   ratio?: string
   href?: string
   isSaved?: boolean
 }
 
-export default function SavedCard({ portfolioId, ownerName, thumbnailUrl, ratio = '16 / 9', href, isSaved = false }: SavedCardProps) {
+export default function SavedCard({ portfolioId, ownerName, ownerProfileImageUrl, ratio = '16 / 9', href, isSaved = false }: SavedCardProps) {
   const [saved, setSaved] = useState(isSaved)
 
   const handleToggleSave = async () => {
@@ -37,20 +38,11 @@ export default function SavedCard({ portfolioId, ownerName, thumbnailUrl, ratio 
       className="relative w-full overflow-hidden border-[0.5px] border-white"
       style={{ aspectRatio: ratio }}
     >
-      {thumbnailUrl ? (
-        <Image
-          src={thumbnailUrl}
-          alt={`${ownerName} 포트폴리오`}
-          fill
-          unoptimized
-          className="object-cover transition-transform duration-300 hover:scale-[1.02]"
-          sizes="(max-width: 1280px) 50vw, 824px"
-        />
-      ) : (
-        <div className="flex size-full items-center justify-center text-sm text-white/40">
-          썸네일이 없습니다.
-        </div>
-      )}
+      <PdfThumbnail
+        portfolioId={portfolioId}
+        alt={`${ownerName} 포트폴리오`}
+        className="size-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+      />
     </div>
   )
 
@@ -60,7 +52,14 @@ export default function SavedCard({ portfolioId, ownerName, thumbnailUrl, ratio 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="size-10 overflow-hidden rounded-full">
-            <Image src="/dummyProfile.png" alt={ownerName} width={40} height={40} className="size-full object-cover" />
+            <Image
+              src={ownerProfileImageUrl ?? '/dummyProfile.png'}
+              alt={ownerName}
+              width={40}
+              height={40}
+              unoptimized={!!ownerProfileImageUrl}
+              className="size-full object-cover"
+            />
           </div>
           <span className="text-[16px] font-medium text-white">{ownerName}</span>
         </div>
