@@ -32,7 +32,7 @@ export function PdfThumbnail({ portfolioId, alt = '포트폴리오 썸네일', c
       canvas.width = viewport.width
       canvas.height = viewport.height
       const ctx = canvas.getContext('2d')!
-      await page.render({ canvasContext: ctx, viewport }).promise
+      await page.render({ canvasContext: ctx, canvas, viewport }).promise
       setDataUrl(canvas.toDataURL())
       URL.revokeObjectURL(pdfUrl)
     }

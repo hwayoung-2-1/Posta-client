@@ -20,6 +20,7 @@ export default function UploadPage() {
   const [progress, setProgress] = useState(0)
   const [fileName, setFileName] = useState('')
   const [portfolioId, setPortfolioId] = useState<string | null>(null)
+  const [pageCount, setPageCount] = useState<number>(0)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   const fileRef = useRef<File | null>(null)
@@ -37,6 +38,7 @@ export default function UploadPage() {
       setProgress(60)
       const res = await uploadPdfPortfolio(file, { title })
       setPortfolioId(res.id)
+      setPageCount(res.pageCount ?? 0)
       setProgress(100)
       setFileState('uploaded')
     } catch {
@@ -104,7 +106,14 @@ export default function UploadPage() {
         />
       )}
 
-      {step === 'write' && <WriteStep mode={format} onComplete={onComplete} />}
+      {step === 'write' && (
+        <WriteStep
+          mode={format}
+          portfolioId={portfolioId ?? undefined}
+          pageCount={pageCount}
+          onComplete={onComplete}
+        />
+      )}
     </>
   )
 }
