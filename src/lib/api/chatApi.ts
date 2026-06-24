@@ -26,7 +26,8 @@ export async function sendChatMessage(
 ): Promise<SendChatMessageResponse> {
   const { data } = await apiClient.post<SendChatMessageResponse>(
     `/api/v1/chat-sessions/${chatSessionId}/messages`,
-    body
+    body,
+    { timeout: 180000 }
   )
   return data
 }

@@ -3,6 +3,7 @@ import type {
   GetPortfoliosParams,
   PortfolioListResponse,
   PortfolioDetailResponse,
+  UploadPortfolioResponse,
   UploadPortfolioPdfResponse,
   UpdatePortfolioRequest,
   UpdatePortfolioResponse,
@@ -14,6 +15,7 @@ import type {
   SavedPortfolioListResponse,
   ReindexResponse,
   PageDetailResponse,
+  MyPortfolioListResponse,
 } from '@/types/portfolio'
 
 export async function getPortfolios(params: GetPortfoliosParams = {}): Promise<PortfolioListResponse> {
@@ -23,6 +25,16 @@ export async function getPortfolios(params: GetPortfoliosParams = {}): Promise<P
 
 export async function getPortfolio(portfolioId: string): Promise<PortfolioDetailResponse> {
   const { data } = await apiClient.get<PortfolioDetailResponse>(`/api/v1/portfolios/${portfolioId}`)
+  return data
+}
+
+export async function uploadPortfolio(
+  file: File,
+  params: { title: string; description?: string; visibility?: string; roleIds?: string[]; skillIds?: string[] }
+): Promise<UploadPortfolioResponse> {
+  const form = new FormData()
+  form.append('file', file)
+  const { data } = await apiClient.post<UploadPortfolioResponse>('/api/v1/portfolios', form, { params })
   return data
 }
 
@@ -89,6 +101,11 @@ export async function getSavedPortfolios(params: { page?: number; size?: number 
   return data
 }
 
+export async function getMyPortfolios(params: { page?: number; size?: number } = {}): Promise<MyPortfolioListResponse> {
+  const { data } = await apiClient.get<MyPortfolioListResponse>('/api/v1/users/me/portfolios', { params })
+  return data
+}
+
 export async function reindexPortfolio(portfolioId: string): Promise<ReindexResponse> {
   const { data } = await apiClient.post<ReindexResponse>(`/api/v1/portfolios/${portfolioId}/reindex`)
   return data
@@ -97,6 +114,11 @@ export async function reindexPortfolio(portfolioId: string): Promise<ReindexResp
 export async function getPageDetail(portfolioId: string, pageNumber: number): Promise<PageDetailResponse> {
   const { data } = await apiClient.get<PageDetailResponse>(`/api/v1/portfolios/${portfolioId}/pages/${pageNumber}`)
   return data
+}
+
+export async function getPortfolioPdfUrl(portfolioId: string): Promise<string> {
+  const res = await apiClient.get(`/api/v1/portfolios/${portfolioId}/pdf`, { responseType: 'blob' })
+  return URL.createObjectURL(res.data)
 }
 
 export async function saveOwnerNote(
